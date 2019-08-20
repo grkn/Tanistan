@@ -19,7 +19,7 @@ public class Application {
     private static Process p;
 
     public static void main(String[] args) throws IOException {
-        launchChromeDriver();
+        //launchChromeDriver();
         SpringApplication.run(Application.class, args);
     }
 

@@ -14,12 +14,6 @@ plugins {
 
 mainClassName = 'com.friends.tanistan.Application'
 
-task runLSBuild(type:Exec) {
-	workingDir '../driver'
-
-	//on windows:
-	commandLine "cmd","d:", "chromedriver.exe"
-}
 repositories {
     // Use jcenter for resolving dependencies.
     // You can declare any Maven/Ivy/file repository here.

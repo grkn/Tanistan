@@ -1,5 +1,6 @@
 package com.friends.tanistan.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.friends.tanistan.controller.converter.UserAuthorizationToUserAuthorizationDtoConverter;
 import com.friends.tanistan.controller.converter.UserDtoToUserEntityConverter;
 import com.friends.tanistan.controller.converter.UserToUserResourceConverter;
@@ -15,6 +16,7 @@ import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.Optional;
 
@@ -45,10 +47,18 @@ public class GlobalConfig {
 
         @Override
         public Optional<String> getCurrentAuditor() {
-            // TODO Auto-generated method stub
             return Optional.of(userService.getCurrentUser());
         }
 
     }
 
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
+
+    @Bean
+    public ObjectMapper objectMapper() {
+        return new ObjectMapper();
+    }
 }

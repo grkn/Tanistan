@@ -29,7 +29,7 @@ public class StatusResource {
 		this.value = value;
 	}
 
-	public class StatusValue {
+	public static class StatusValue {
 		private StatusBuild build;
 		private String message;
 		private StatusOS os;
@@ -69,7 +69,7 @@ public class StatusResource {
 
 	}
 
-	public class StatusBuild {
+	public static class StatusBuild {
 		private String version;
 
 		public String getVersion() {
@@ -81,7 +81,7 @@ public class StatusResource {
 		}
 	}
 
-	public class StatusOS {
+	public static class StatusOS {
 		private String arch;
 		private String name;
 		private String version;

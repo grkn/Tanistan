@@ -1,103 +1,119 @@
 package com.friends.tanistan.controller.resource;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.util.Date;
 import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-
 public class UserResource {
-	
-	private String id;
-	private String name;
-	private String middleName;
-	private String lastName;
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
-	private Date birthDay;
-	private String emailAddress;
-	private String phoneNumber;
-	private String secretQuestion;
-	private String accountName;
-	private Set<UserAuthorizationResource> userAuthorization;
 
+    private String id;
+    private String name;
+    private String middleName;
+    private String lastName;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
+    private Date birthDay;
+    private String emailAddress;
+    private String phoneNumber;
+    private String secretQuestion;
+    private String accountName;
+    private Set<UserAuthorizationResource> userAuthorization;
 
-	public String getName() {
-		return name;
-	}
+    public UserResource(UserResource userResource) {
+        this.id = userResource.id;
+        this.name = userResource.name;
+        this.middleName = userResource.middleName;
+        this.lastName = userResource.lastName;
+        this.birthDay = userResource.birthDay;
+        this.emailAddress = userResource.emailAddress;
+        this.phoneNumber = userResource.phoneNumber;
+        this.secretQuestion = userResource.secretQuestion;
+        this.accountName = userResource.accountName;
+        this.userAuthorization = userResource.userAuthorization;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public UserResource() {
 
-	public String getMiddleName() {
-		return middleName;
-	}
+    }
 
-	public void setMiddleName(String middleName) {
-		this.middleName = middleName;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public String getLastName() {
-		return lastName;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public void setLastName(String lastName) {
-		this.lastName = lastName;
-	}
+    public String getMiddleName() {
+        return middleName;
+    }
 
-	public Date getBirthDay() {
-		return birthDay;
-	}
+    public void setMiddleName(String middleName) {
+        this.middleName = middleName;
+    }
 
-	public void setBirthDay(Date birthDay) {
-		this.birthDay = birthDay;
-	}
+    public String getLastName() {
+        return lastName;
+    }
 
-	public String getEmailAddress() {
-		return emailAddress;
-	}
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
 
-	public void setEmailAddress(String emailAddress) {
-		this.emailAddress = emailAddress;
-	}
+    public Date getBirthDay() {
+        return birthDay;
+    }
 
-	public String getPhoneNumber() {
-		return phoneNumber;
-	}
+    public void setBirthDay(Date birthDay) {
+        this.birthDay = birthDay;
+    }
 
-	public void setPhoneNumber(String phoneNumber) {
-		this.phoneNumber = phoneNumber;
-	}
+    public String getEmailAddress() {
+        return emailAddress;
+    }
 
-	public String getSecretQuestion() {
-		return secretQuestion;
-	}
+    public void setEmailAddress(String emailAddress) {
+        this.emailAddress = emailAddress;
+    }
 
-	public void setSecretQuestion(String secretQuestion) {
-		this.secretQuestion = secretQuestion;
-	}
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
 
-	public String getId() {
-		return id;
-	}
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
 
-	public void setId(String id) {
-		this.id = id;
-	}
+    public String getSecretQuestion() {
+        return secretQuestion;
+    }
 
-	public Set<UserAuthorizationResource> getUserAuthorization() {
-		return userAuthorization;
-	}
+    public void setSecretQuestion(String secretQuestion) {
+        this.secretQuestion = secretQuestion;
+    }
 
-	public void setUserAuthorization(Set<UserAuthorizationResource> userAuthorization) {
-		this.userAuthorization = userAuthorization;
-	}
+    public String getId() {
+        return id;
+    }
 
-	public String getAccountName() {
-		return accountName;
-	}
+    public void setId(String id) {
+        this.id = id;
+    }
 
-	public void setAccountName(String accountName) {
-		this.accountName = accountName;
-	}
+    public Set<UserAuthorizationResource> getUserAuthorization() {
+        return userAuthorization;
+    }
+
+    public void setUserAuthorization(Set<UserAuthorizationResource> userAuthorization) {
+        this.userAuthorization = userAuthorization;
+    }
+
+    public String getAccountName() {
+        return accountName;
+    }
+
+    public void setAccountName(String accountName) {
+        this.accountName = accountName;
+    }
 
 }

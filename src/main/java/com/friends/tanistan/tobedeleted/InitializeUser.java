@@ -7,11 +7,23 @@ import com.friends.tanistan.repository.UserAuthorizationRepository;
 import com.friends.tanistan.repository.UserRepository;
 import com.google.common.collect.Sets;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
+import org.springframework.security.oauth2.provider.OAuth2Request;
+import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * TO BE DELETED
@@ -35,6 +47,9 @@ public class InitializeUser {
     @Autowired
     private OAuthClientDetailsRepository oAuthClientDetailsRepository;
 
+    @Autowired
+    private DefaultTokenServices defaultTokenServices;
+
     private final static String CLIENT_ID = "grkn";
     private final static String PASSWORD = "grkn";
 
@@ -42,7 +57,7 @@ public class InitializeUser {
     @PostConstruct
     @Transactional
     public void setUp() {
-        createPreDefinedUser(CLIENT_ID, PASSWORD, true);
+        createPreDefinedUser(CLIENT_ID, PASSWORD, false);
     }
 
     public void createPreDefinedUser(String clientId, String password, boolean isEncoded) {
@@ -83,6 +98,18 @@ public class InitializeUser {
 
         try {
             // For root 1 hour to accessToken, 1 year to refreshTokenValidity
+            Collection<GrantedAuthority> grantedAuthorities = new HashSet<>();
+            grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+            grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+
+            Authentication authentication = new UsernamePasswordAuthenticationToken(clientId,
+                    isEncoded ? encodedPassword : password,
+                    grantedAuthorities);
+            String accessToken = defaultTokenServices
+                    .createAccessToken(new OAuth2Authentication(prepareOAuth2Request(authentication),
+                            authentication)).getValue();
+            System.out.println("Access Token : " + accessToken);
+
             oAuthClientDetailsRepository
                     .insertAccessToken(clientId, isEncoded ? encodedPassword : password, "ROLE_ADMIN,ROLE_USER",
                             60 * 60,
@@ -93,4 +120,23 @@ public class InitializeUser {
 
     }
 
+
+    private OAuth2Request prepareOAuth2Request(Authentication authentication) {
+        Map<String, String> requestParameters = new HashMap<>();
+        requestParameters.put("client_id", authentication.getPrincipal().toString());
+        requestParameters.put("client_secret", authentication.getCredentials().toString());
+
+        String clientId = authentication.getPrincipal().toString();
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+
+        Set<String> responseType = new HashSet<>();
+
+        Set<String> scope = new HashSet<>();
+        scope.add("write");
+        scope.add("read");
+
+        return new OAuth2Request(requestParameters, clientId, authorities, true, scope, null,
+                null, responseType, null);
+    }
 }
+

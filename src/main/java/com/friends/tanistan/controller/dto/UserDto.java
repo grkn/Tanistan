@@ -34,9 +34,8 @@ public class UserDto {
     private String secretQuestion;
     private String secretAnswer;
     private String accountName;
-    @NotBlank
-    @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}$"
-            , message = "Password must be at least 8 characters. Also Password must contain at least one special, one lowercase character and one special character.")
+//    @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}$"
+//            , message = "Password must be at least 8 characters. Also Password must contain at least one special, one lowercase character and one special character.")
     private String accountPhrase;
     private Set<UserAuthorizationDto> userAuthorzation;
     private String attemptType;

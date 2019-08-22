@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.util.List;
+import java.util.Map;
 
 @Repository
 public class OAuthClientDetailsRepositoryImpl implements OAuthClientDetailsRepository {
@@ -40,14 +41,25 @@ public class OAuthClientDetailsRepositoryImpl implements OAuthClientDetailsRepos
     }
 
     @Override
-    public void updateClientIdAndClientSecret(String clientId, String clientSecret,String oldEmailAddress, boolean isEncodable) {
+    public void updateClientIdAndClientSecret(String clientId, String clientSecret, String oldEmailAddress,
+            boolean isEncodable) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         String updateScript = "UPDATE OAUTH_CLIENT_DETAILS SET client_id = ?, client_secret = ? WHERE client_id = ?";
         jdbcTemplate
                 .update(updateScript, clientId, isEncodable ? passwordEncoder.encode(clientSecret) : clientSecret,
                         oldEmailAddress);
 
-        jdbcTemplate.update("UPDATE oauth_client_token SET client_id = ? WHERE client_id = ?" ,clientId,oldEmailAddress);
-        jdbcTemplate.update("UPDATE oauth_access_token SET client_id = ? WHERE client_id = ?" ,clientId,oldEmailAddress);
+        jdbcTemplate
+                .update("UPDATE oauth_client_token SET client_id = ? WHERE client_id = ?", clientId, oldEmailAddress);
+        jdbcTemplate
+                .update("UPDATE oauth_access_token SET client_id = ? WHERE client_id = ?", clientId, oldEmailAddress);
     }
+
+    @Override
+    public Map<String, Object> getOAuthClientDetails(String client_id) {
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        String query = "SELECT * FROM OAUTH_CLIENT_DETAILS WHERE client_id = ?";
+        return jdbcTemplate.queryForMap(query, client_id);
+    }
+
 }

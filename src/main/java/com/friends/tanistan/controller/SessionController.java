@@ -11,6 +11,7 @@ import com.friends.tanistan.controller.driver.TimeoutDto;
 import com.friends.tanistan.service.DriverService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@CrossOrigin
 @RequestMapping(value = "/tanistan/driver/session", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 public class SessionController {
 
@@ -29,7 +31,7 @@ public class SessionController {
         this.driverService = driverService;
     }
 
-    @GetMapping
+    @PostMapping
     public ResponseEntity<SessionResource> getSession(@RequestBody SessionDto sessionDto) {
         return driverService.getSession(sessionDto);
     }

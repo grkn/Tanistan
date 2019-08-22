@@ -4,11 +4,13 @@ import com.friends.tanistan.controller.driver.StatusResource;
 import com.friends.tanistan.service.DriverService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@CrossOrigin
 @RequestMapping(value = "/tanistan/driver/status", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 public class StatusController {
 

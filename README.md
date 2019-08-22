@@ -1,4 +1,4 @@
-# TanistanByTakci
+# AUTOMATION PROJECT FOR TEST
 
 As a first step i completed oAuth2 server, and login Authentication mechanism.
 

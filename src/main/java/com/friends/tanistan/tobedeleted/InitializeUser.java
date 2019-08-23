@@ -2,7 +2,6 @@ package com.friends.tanistan.tobedeleted;
 
 import com.friends.tanistan.entity.UserAuthorization;
 import com.friends.tanistan.entity.UserEntity;
-import com.friends.tanistan.repository.OAuthClientDetailsRepository;
 import com.friends.tanistan.repository.UserAuthorizationRepository;
 import com.friends.tanistan.repository.UserRepository;
 import com.google.common.collect.Sets;
@@ -43,9 +42,6 @@ public class InitializeUser {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private OAuthClientDetailsRepository oAuthClientDetailsRepository;
 
     @Autowired
     private DefaultTokenServices defaultTokenServices;
@@ -105,15 +101,11 @@ public class InitializeUser {
             Authentication authentication = new UsernamePasswordAuthenticationToken(clientId,
                     isEncoded ? encodedPassword : password,
                     grantedAuthorities);
-            String accessToken = defaultTokenServices
+            defaultTokenServices
                     .createAccessToken(new OAuth2Authentication(prepareOAuth2Request(authentication),
                             authentication)).getValue();
-            System.out.println("Access Token : " + accessToken);
 
-            oAuthClientDetailsRepository
-                    .insertAccessToken(clientId, isEncoded ? encodedPassword : password, "ROLE_ADMIN,ROLE_USER",
-                            60 * 60,
-                            60 * 60 * 24 * 365);
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }

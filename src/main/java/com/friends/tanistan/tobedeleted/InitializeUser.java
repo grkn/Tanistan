@@ -112,7 +112,6 @@ public class InitializeUser {
 
     }
 
-
     private OAuth2Request prepareOAuth2Request(Authentication authentication) {
         Map<String, String> requestParameters = new HashMap<>();
         requestParameters.put("client_id", authentication.getPrincipal().toString());

@@ -93,7 +93,6 @@ public class InitializeUser {
         userRepository.save(userEntity);
 
         try {
-            // For root 1 hour to accessToken, 1 year to refreshTokenValidity
             Collection<GrantedAuthority> grantedAuthorities = new HashSet<>();
             grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
             grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_USER"));

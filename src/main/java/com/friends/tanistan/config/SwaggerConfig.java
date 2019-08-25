@@ -25,7 +25,7 @@ import javax.annotation.PostConstruct;
 import java.util.Arrays;
 import java.util.Collections;
 
-@Profile("dev")
+@Profile("swagger")
 @Configuration
 @EnableSwagger2
 public class SwaggerConfig {

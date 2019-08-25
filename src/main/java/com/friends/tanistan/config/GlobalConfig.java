@@ -2,6 +2,8 @@ package com.friends.tanistan.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.friends.tanistan.controller.converter.TestCommandsDtoToTestModel;
+import com.friends.tanistan.controller.converter.TestModelToTestCommandsResource;
 import com.friends.tanistan.controller.converter.UserAuthorizationToUserAuthorizationDtoConverter;
 import com.friends.tanistan.controller.converter.UserDtoToUserEntityConverter;
 import com.friends.tanistan.controller.converter.UserToUserResourceConverter;
@@ -32,6 +34,8 @@ public class GlobalConfig {
     @Primary
     public ConversionService conversionService() {
         GenericConversionService conversionService = new GenericConversionService();
+        conversionService.addConverter(new TestModelToTestCommandsResource());
+        conversionService.addConverter(new TestCommandsDtoToTestModel());
         conversionService.addConverter(new UserToUserResourceConverter());
         conversionService.addConverter(new UserDtoToUserEntityConverter());
         conversionService.addConverter(new UserAuthorizationToUserAuthorizationDtoConverter());

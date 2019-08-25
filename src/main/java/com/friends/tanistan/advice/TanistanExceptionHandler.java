@@ -1,5 +1,6 @@
 package com.friends.tanistan.advice;
 
+import com.friends.tanistan.exception.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -58,8 +59,15 @@ public class TanistanExceptionHandler extends ResponseEntityExceptionHandler {
 				HttpStatus.BAD_REQUEST);
 	}
 
+	@ExceptionHandler({ BadRequestException.class })
+	public ResponseEntity<Object> handleBadRequestException(Exception ex, WebRequest request) throws Exception {
+		logger.error("BadRequest error :", ex);
+		return new ResponseEntity<Object>(((BadRequestException) ex).getErrorResource(), new HttpHeaders(),
+				HttpStatus.BAD_REQUEST);
+	}
+
 	// Latest Solution
-	@ExceptionHandler({ RuntimeException.class })
+	@ExceptionHandler({ Throwable.class })
 	public ResponseEntity<Object> handleExceptionLatest(Exception ex, WebRequest request) {
 		logger.error("Unknown error :", ex);
 		return new ResponseEntity<Object>("Exception occured. Server error", new HttpHeaders(),

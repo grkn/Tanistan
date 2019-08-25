@@ -1,8 +1,10 @@
 package com.friends.tanistan.entity;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import javax.persistence.Column;
+import javax.persistence.EntityListeners;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
@@ -12,8 +14,10 @@ import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @MappedSuperclass
+@EntityListeners(AuditingEntityListener.class)
 public class TanistanBaseEntity<ID extends Serializable> {
 
 	@Id
@@ -31,11 +35,11 @@ public class TanistanBaseEntity<ID extends Serializable> {
 
 	@Column(name = "created_date", nullable = false, updatable = false)
 	@CreatedDate
-	private long createdDate;
+	private Date createdDate;
 
 	@Column(name = "modified_date")
 	@LastModifiedDate
-	private long modifiedDate;
+	private Date modifiedDate;
 	
 	public TanistanBaseEntity() {
 	}
@@ -64,20 +68,19 @@ public class TanistanBaseEntity<ID extends Serializable> {
 		this.modifiedBy = modifiedBy;
 	}
 
-	public long getCreatedDate() {
+	public Date getCreatedDate() {
 		return createdDate;
 	}
 
-	public void setCreatedDate(long createdDate) {
+	public void setCreatedDate(Date createdDate) {
 		this.createdDate = createdDate;
 	}
 
-	public long getModifiedDate() {
+	public Date getModifiedDate() {
 		return modifiedDate;
 	}
 
-	public void setModifiedDate(long modifiedDate) {
+	public void setModifiedDate(Date modifiedDate) {
 		this.modifiedDate = modifiedDate;
 	}
-
 }

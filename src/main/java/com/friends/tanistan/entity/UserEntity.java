@@ -21,7 +21,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import com.friends.tanistan.enums.AttemptType;
 
 @Entity
-@EntityListeners(AuditingEntityListener.class)
 //@Builder
 //@AllArgsConstructor
 //@NoArgsConstructor
@@ -52,6 +51,9 @@ public class UserEntity extends TanistanBaseEntity<String> {
 
 	@OneToMany(mappedBy = "userEntity", fetch = FetchType.EAGER)
 	private Set<UserAuthorization> userAuthorization;
+
+	@OneToMany(mappedBy = "userEntity", fetch = FetchType.LAZY)
+	private Set<TestModel> testCommands;
 
 	public UserEntity() {
 		super();

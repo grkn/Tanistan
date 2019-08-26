@@ -12,7 +12,7 @@ plugins {
     id 'application'
 }
 
-mainClassName = 'com.friends.tanistan.Application'
+mainClassName = 'com.friends.test.automation.Application'
 
 repositories {
     // Use jcenter for resolving dependencies.
@@ -49,6 +49,8 @@ dependencies {
 	// https://mvnrepository.com/artifact/io.springfox/springfox-swagger-ui
 	implementation group: 'io.springfox', name: 'springfox-swagger-ui', version: '2.9.2'
 
+	// https://mvnrepository.com/artifact/org.postgresql/postgresql
+	compile group: 'org.postgresql', name: 'postgresql', version: '42.2.6'
 
 	compile('javax.xml.bind:jaxb-api:2.3.0')
 	compile('javax.activation:activation:1.1')

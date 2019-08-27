@@ -1,5 +1,8 @@
-package com.friends.test.automation.controller.driver;
+package com.friends.test.automation.controller.resource;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class StatusResource {
 	private String sessionId;
 	private int status;

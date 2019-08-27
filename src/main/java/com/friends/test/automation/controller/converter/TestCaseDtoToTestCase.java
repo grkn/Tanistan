@@ -2,7 +2,7 @@ package com.friends.test.automation.controller.converter;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.friends.test.automation.controller.driver.TestCaseDto;
+import com.friends.test.automation.controller.dto.TestCaseDto;
 import com.friends.test.automation.controller.resource.ErrorResource;
 import com.friends.test.automation.entity.TestCase;
 import com.friends.test.automation.exception.BadRequestException;

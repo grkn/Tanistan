@@ -3,9 +3,11 @@ package com.friends.test.automation.tobedeleted;
 import com.friends.test.automation.entity.TestSuite;
 import com.friends.test.automation.entity.UserAuthorization;
 import com.friends.test.automation.entity.UserEntity;
+import com.friends.test.automation.repository.OAuthClientDetailsRepository;
 import com.friends.test.automation.repository.TestSuiteRepository;
 import com.friends.test.automation.repository.UserAuthorizationRepository;
 import com.friends.test.automation.repository.UserRepository;
+import com.friends.test.automation.util.SecurityUtil;
 import com.google.common.collect.Sets;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -50,6 +52,9 @@ public class InitializeUser {
 
     @Autowired
     private TestSuiteRepository testSuiteRepository;
+
+    @Autowired
+    private OAuthClientDetailsRepository clientDetailsRepository;
 
     private final static String CLIENT_ID = "grkn";
     private final static String PASSWORD = "grkn";
@@ -99,17 +104,25 @@ public class InitializeUser {
             }
 
             userRepository.save(userEntity);
-        }
-        Collection<GrantedAuthority> grantedAuthorities = new HashSet<>();
-        grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
-        grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+            try {
+                Collection<GrantedAuthority> grantedAuthorities = new HashSet<>();
+                grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+                grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_USER"));
 
-        Authentication authentication = new UsernamePasswordAuthenticationToken(clientId,
-                isEncoded ? encodedPassword : password,
-                grantedAuthorities);
-        defaultTokenServices
-                .createAccessToken(new OAuth2Authentication(prepareOAuth2Request(authentication),
-                        authentication)).getValue();
+                Authentication authentication = new UsernamePasswordAuthenticationToken(clientId,
+                        isEncoded ? encodedPassword : password,
+                        grantedAuthorities);
+                defaultTokenServices
+                        .createAccessToken(new OAuth2Authentication(SecurityUtil.prepareOAuth2Request(authentication),
+                                authentication)).getValue();
+
+                clientDetailsRepository
+                        .insertAccessToken(clientId, isEncoded ? encodedPassword : password, "ROLE_USER,ROLE_ADMIN", 900,
+                                2592000);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
 
         TestSuite testSuite = new TestSuite();
         testSuite.setName("Root");
@@ -117,24 +130,6 @@ public class InitializeUser {
         testSuite.setChildren(null);
         testSuiteRepository.save(testSuite);
 
-    }
-
-    private OAuth2Request prepareOAuth2Request(Authentication authentication) {
-        Map<String, String> requestParameters = new HashMap<>();
-        requestParameters.put("client_id", authentication.getPrincipal().toString());
-        requestParameters.put("client_secret", authentication.getCredentials().toString());
-
-        String clientId = authentication.getPrincipal().toString();
-        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-
-        Set<String> responseType = new HashSet<>();
-
-        Set<String> scope = new HashSet<>();
-        scope.add("write");
-        scope.add("read");
-
-        return new OAuth2Request(requestParameters, clientId, authorities, true, scope, null,
-                null, responseType, null);
     }
 }
 

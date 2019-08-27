@@ -6,6 +6,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.util.List;
 import java.util.Set;
@@ -19,7 +20,7 @@ public class TestCase extends TanistanBaseEntity<String> {
 
     private String name;
 
-    @ManyToOne()
+    @ManyToOne
     private UserEntity userEntity;
 
     @ManyToMany
@@ -27,6 +28,9 @@ public class TestCase extends TanistanBaseEntity<String> {
             joinColumns = @JoinColumn(name = "id"),
             inverseJoinColumns = @JoinColumn(name = "test_suite_id"))
     private Set<TestSuite> testSuite;
+
+    @OneToMany(mappedBy = "testCase")
+    private List<TestCaseInstanceRunner> testCaseInstanceRunners;
 
     public String getTestCommands() {
         return testCommands;
@@ -58,5 +62,14 @@ public class TestCase extends TanistanBaseEntity<String> {
 
     public void setTestSuite(Set<TestSuite> testSuite) {
         this.testSuite = testSuite;
+    }
+
+    public List<TestCaseInstanceRunner> getTestCaseInstanceRunners() {
+        return testCaseInstanceRunners;
+    }
+
+    public void setTestCaseInstanceRunners(
+            List<TestCaseInstanceRunner> testCaseInstanceRunners) {
+        this.testCaseInstanceRunners = testCaseInstanceRunners;
     }
 }

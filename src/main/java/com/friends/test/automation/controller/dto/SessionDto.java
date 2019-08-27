@@ -1,4 +1,4 @@
-package com.friends.test.automation.controller.driver;
+package com.friends.test.automation.controller.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

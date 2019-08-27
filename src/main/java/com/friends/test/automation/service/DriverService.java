@@ -1,14 +1,14 @@
 package com.friends.test.automation.service;
 
-import com.friends.test.automation.controller.driver.DefaultResource;
-import com.friends.test.automation.controller.driver.DeleteSessionResource;
-import com.friends.test.automation.controller.driver.FindElementDto;
-import com.friends.test.automation.controller.driver.NavigateDto;
-import com.friends.test.automation.controller.driver.SendKeysDto;
-import com.friends.test.automation.controller.driver.SessionDto;
-import com.friends.test.automation.controller.driver.SessionResource;
-import com.friends.test.automation.controller.driver.StatusResource;
-import com.friends.test.automation.controller.driver.TimeoutDto;
+import com.friends.test.automation.controller.resource.DefaultResource;
+import com.friends.test.automation.controller.resource.DeleteSessionResource;
+import com.friends.test.automation.controller.dto.FindElementDto;
+import com.friends.test.automation.controller.dto.NavigateDto;
+import com.friends.test.automation.controller.dto.SendKeysDto;
+import com.friends.test.automation.controller.dto.SessionDto;
+import com.friends.test.automation.controller.resource.SessionResource;
+import com.friends.test.automation.controller.resource.StatusResource;
+import com.friends.test.automation.controller.dto.TimeoutDto;
 import com.friends.test.automation.controller.resource.ErrorResource;
 import com.friends.test.automation.exception.DriverException;
 import org.springframework.beans.factory.annotation.Value;

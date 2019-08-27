@@ -1,8 +1,10 @@
 package com.friends.test.automation.controller;
 
-import com.friends.test.automation.controller.driver.TestCaseDto;
-import com.friends.test.automation.controller.driver.TestCaseResource;
+import com.friends.test.automation.controller.dto.TestCaseDto;
+import com.friends.test.automation.controller.resource.InstanceRunnerResource;
+import com.friends.test.automation.controller.resource.TestCaseResource;
 import com.friends.test.automation.entity.TestCase;
+import com.friends.test.automation.entity.TestCaseInstanceRunner;
 import com.friends.test.automation.service.TestCaseService;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.data.domain.Page;
@@ -52,6 +54,19 @@ public class TestController {
                 .map(testModel -> conversionService.convert(testModel, TestCaseResource.class)).collect(
                         Collectors.toList());
         return ResponseEntity.ok(new PageImpl(testCaseResourceSet, pageable, testModelPage.getTotalElements()));
+    }
+
+    @GetMapping("/{testCaseId}/instancerunner/all")
+    public ResponseEntity<Page<InstanceRunnerResource>> findAllTestCaseRunnersWithRunners(
+            @PathVariable String testCaseId,
+            @PageableDefault(sort = "createdDate", direction = Sort.Direction.DESC) Pageable pageable) {
+        Page<TestCaseInstanceRunner> testModelPage = this.testCaseService
+                .findAllInstanceRunnersByTestCaseId(testCaseId, pageable);
+        List<InstanceRunnerResource> instanceRunnerResources = testModelPage.get()
+                .map(testCaseInstanceRunner -> conversionService
+                        .convert(testCaseInstanceRunner, InstanceRunnerResource.class)).collect(
+                        Collectors.toList());
+        return ResponseEntity.ok(new PageImpl(instanceRunnerResources, pageable, testModelPage.getTotalElements()));
     }
 
 }

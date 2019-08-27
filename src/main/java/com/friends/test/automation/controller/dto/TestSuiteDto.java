@@ -1,6 +1,4 @@
-package com.friends.test.automation.controller.driver;
-
-import com.friends.test.automation.controller.driver.TestCaseDto;
+package com.friends.test.automation.controller.dto;
 
 import java.util.List;
 

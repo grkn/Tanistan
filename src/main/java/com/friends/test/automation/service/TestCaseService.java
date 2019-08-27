@@ -2,8 +2,10 @@ package com.friends.test.automation.service;
 
 import com.friends.test.automation.controller.resource.ErrorResource;
 import com.friends.test.automation.entity.TestCase;
+import com.friends.test.automation.entity.TestCaseInstanceRunner;
 import com.friends.test.automation.entity.UserEntity;
 import com.friends.test.automation.exception.AlreadyExistsException;
+import com.friends.test.automation.repository.TestCaseInstanceRunnerRepository;
 import com.friends.test.automation.repository.TestCaseRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,11 +16,14 @@ public class TestCaseService {
 
     private final TestCaseRepository testCaseRepository;
     private final UserService<UserEntity> userService;
+    private final TestCaseInstanceRunnerRepository testCaseInstanceRunnerRepository;
 
     public TestCaseService(TestCaseRepository testCaseRepository,
-            UserService<UserEntity> userService) {
+            UserService<UserEntity> userService,
+            TestCaseInstanceRunnerRepository testCaseInstanceRunnerRepository) {
         this.testCaseRepository = testCaseRepository;
         this.userService = userService;
+        this.testCaseInstanceRunnerRepository = testCaseInstanceRunnerRepository;
     }
 
     public TestCase save(String userId, TestCase testCase) {
@@ -41,5 +46,9 @@ public class TestCaseService {
 
     public Page<TestCase> findAllByUserId(String userId, Pageable pageable) {
         return this.testCaseRepository.findAllByUserEntityId(userId, pageable);
+    }
+
+    public Page<TestCaseInstanceRunner> findAllInstanceRunnersByTestCaseId(String testCaseId, Pageable pageable) {
+        return testCaseInstanceRunnerRepository.findAllByTestCaseId(testCaseId, pageable);
     }
 }

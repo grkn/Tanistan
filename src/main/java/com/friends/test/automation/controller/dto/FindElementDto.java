@@ -1,4 +1,4 @@
-package com.friends.test.automation.controller.driver;
+package com.friends.test.automation.controller.dto;
 
 /*
 {"using":"<find strategy>","value":"<element-value>"}

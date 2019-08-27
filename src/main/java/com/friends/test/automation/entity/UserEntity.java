@@ -48,7 +48,10 @@ public class UserEntity extends TanistanBaseEntity<String> {
     private Set<UserAuthorization> userAuthorization;
 
     @OneToMany(mappedBy = "userEntity", fetch = FetchType.LAZY)
-    private Set<TestCase> testCommands;
+    private Set<TestCase> testCases;
+
+    @OneToMany(mappedBy = "userEntity", fetch = FetchType.LAZY)
+    private Set<TestCaseInstanceRunner> testCaseInstanceRunners;
 
     public UserEntity() {
         super();
@@ -156,5 +159,22 @@ public class UserEntity extends TanistanBaseEntity<String> {
 
     public void setAccountName(String accountName) {
         this.accountName = accountName;
+    }
+
+    public Set<TestCase> getTestCases() {
+        return testCases;
+    }
+
+    public void setTestCases(Set<TestCase> testCases) {
+        this.testCases = testCases;
+    }
+
+    public Set<TestCaseInstanceRunner> getTestCaseInstanceRunners() {
+        return testCaseInstanceRunners;
+    }
+
+    public void setTestCaseInstanceRunners(
+            Set<TestCaseInstanceRunner> testCaseInstanceRunners) {
+        this.testCaseInstanceRunners = testCaseInstanceRunners;
     }
 }

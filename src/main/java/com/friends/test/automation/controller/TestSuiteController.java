@@ -1,7 +1,7 @@
 package com.friends.test.automation.controller;
 
-import com.friends.test.automation.controller.driver.TestCaseResource;
-import com.friends.test.automation.controller.driver.TestSuiteDto;
+import com.friends.test.automation.controller.resource.TestCaseResource;
+import com.friends.test.automation.controller.dto.TestSuiteDto;
 import com.friends.test.automation.controller.resource.TestSuiteResource;
 import com.friends.test.automation.entity.TestSuite;
 import com.friends.test.automation.service.TestCaseService;
@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
@@ -76,24 +76,31 @@ public class TestSuiteController {
     }
 
     @PostMapping("/{suiteId}/addtest")
-    public ResponseEntity<TestSuiteResource> ddTestCaseToTestSuite(@PathVariable String suiteId,
+    public ResponseEntity<TestSuiteResource> addTestCaseToTestSuite(@PathVariable String suiteId,
             @RequestBody List<String> testIds) {
         TestSuiteResource resource = conversionService
                 .convert(testSuiteService.addTestCaseToTestSuite(suiteId, testIds), TestSuiteResource.class);
         return ResponseEntity.ok(resource);
     }
 
-    @GetMapping("/{suiteId}/testcases")
-    public ResponseEntity<Set<TestCaseResource>> getTestCaseBySuiteId(@PathVariable String suiteId) {
-        Set<TestCaseResource> testCases = testSuiteService.getTestCasesBySuiteId(suiteId).stream()
+    @GetMapping("/{suiteId}/testcases/user/{userId}")
+    public ResponseEntity<List<TestCaseResource>> getTestCaseBySuiteId(@PathVariable String suiteId,
+            @PathVariable String userId) {
+        List<TestCaseResource> testCases = testSuiteService.getTestCasesBySuiteIdAndUserId(suiteId,userId).stream()
                 .map(testCase -> conversionService.convert(testCase, TestCaseResource.class))
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
         return ResponseEntity.ok(testCases);
     }
 
     @DeleteMapping("/{suiteId}/testcase/{testCaseId}")
-    public ResponseEntity<Void> deleteTestCaseFromSuite(@PathVariable String suiteId, String testCaseId) {
-        testSuiteService.deleteTestCase(suiteId,testCaseId);
+    public ResponseEntity<Void> deleteTestCaseFromSuite(@PathVariable String suiteId, @PathVariable String testCaseId) {
+        testSuiteService.deleteTestCase(suiteId, testCaseId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{suiteId}/testcase/run")
+    public ResponseEntity<Void> runTestCases(@PathVariable String suiteId) {
+        testSuiteService.runTestCase(suiteId);
         return ResponseEntity.noContent().build();
     }
 }

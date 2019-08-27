@@ -8,9 +8,18 @@ import com.friends.test.automation.exception.NotFoundException;
 import com.friends.test.automation.repository.OAuthClientDetailsRepository;
 import com.friends.test.automation.repository.UserAuthorizationRepository;
 import com.friends.test.automation.repository.UserRepository;
+import com.friends.test.automation.util.SecurityUtil;
+import com.google.common.collect.Sets;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
+import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -29,14 +38,18 @@ public class UserService<T extends UserEntity> extends BaseService {
     private final UserAuthorizationRepository userAuthorizationRepository;
     private final OAuthClientDetailsRepository oAuthClientDetailsRepository;
     private static final String DEFAULT_AUTH = "ROLE_USER";
+    private final DefaultTokenServices defaultTokenServices;
+    private final Logger logger = LoggerFactory.getLogger(UserService.class);
 
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder,
             UserAuthorizationRepository userAuthorizationRepository,
-            OAuthClientDetailsRepository oAuthClientDetailsRepository) {
+            OAuthClientDetailsRepository oAuthClientDetailsRepository,
+            DefaultTokenServices defaultTokenServices) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.userAuthorizationRepository = userAuthorizationRepository;
         this.oAuthClientDetailsRepository = oAuthClientDetailsRepository;
+        this.defaultTokenServices = defaultTokenServices;
     }
 
     @Transactional
@@ -168,9 +181,26 @@ public class UserService<T extends UserEntity> extends BaseService {
 
     private void setAccessToken(UserEntity userEntity, String password) {
         // 30 days to refreshToken, 15 min to accessToken
-        oAuthClientDetailsRepository
-                .insertAccessToken(StringUtils.isEmpty(userEntity.getAccountName()) ? userEntity.getEmailAddress()
-                        : userEntity.getAccountName(), password, DEFAULT_AUTH, 900, 2592000);
+
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                StringUtils.isEmpty(userEntity.getAccountName()) ? userEntity.getEmailAddress()
+                        : userEntity.getAccountName(), password,
+                Sets.newHashSet(new SimpleGrantedAuthority(DEFAULT_AUTH)));
+
+        defaultTokenServices
+                .createAccessToken(new OAuth2Authentication(SecurityUtil.prepareOAuth2Request(authentication),
+                        authentication));
+
+        try {
+            oAuthClientDetailsRepository
+                    .insertAccessToken(StringUtils.isEmpty(userEntity.getAccountName()) ? userEntity.getEmailAddress()
+                            : userEntity.getAccountName(), password, DEFAULT_AUTH, 900, 2592000);
+        } catch (Exception ex) {
+            logger.warn(
+                    String.format("User with name : %s already created in auth table", userEntity.getEmailAddress()),
+                    ex);
+        }
+
     }
 
     private void updateClientIdAndClientSecret(UserEntity user, UserEntity userEntity) {

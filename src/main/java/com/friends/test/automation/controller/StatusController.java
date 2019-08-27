@@ -1,6 +1,6 @@
 package com.friends.test.automation.controller;
 
-import com.friends.test.automation.controller.driver.StatusResource;
+import com.friends.test.automation.controller.resource.StatusResource;
 import com.friends.test.automation.service.DriverService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

@@ -1,12 +1,13 @@
 package com.friends.test.automation.controller.converter;
 
-import com.friends.test.automation.controller.driver.TestCaseDto;
-import com.friends.test.automation.controller.driver.TestSuiteDto;
+import com.friends.test.automation.controller.dto.TestCaseDto;
+import com.friends.test.automation.controller.dto.TestSuiteDto;
 import com.friends.test.automation.entity.TestCase;
 import com.friends.test.automation.entity.TestSuite;
+import com.google.common.collect.Sets;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.util.CollectionUtils;
 
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -28,11 +29,15 @@ public class TestSuiteDtoToTestSuite implements Converter<TestSuiteDto, TestSuit
         parent.setId(source.getParentId());
         testSuite.setParent(parent);
 
-        Set<TestCase> set = source.getTestCase().stream()
-                .map(testCaseDto -> testCaseDtoToTestCaseConverter.convert(testCaseDto)).collect(
-                        Collectors.toSet());
+        if (!CollectionUtils.isEmpty(source.getTestCase())) {
+            Set<TestCase> set = source.getTestCase().stream()
+                    .map(testCaseDto -> testCaseDtoToTestCaseConverter.convert(testCaseDto)).collect(
+                            Collectors.toSet());
+            testSuite.setTestCases(set);
+        } else {
+            testSuite.setTestCases(Sets.newHashSet());
+        }
 
-        testSuite.setTestCases(set);
         return testSuite;
     }
 }

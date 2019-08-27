@@ -17,7 +17,8 @@ public class TestSuite extends TanistanBaseEntity<String> {
 
     private String name;
 
-    @ManyToMany(mappedBy = "testSuite", fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToMany(mappedBy = "testSuite", fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE,
+            CascadeType.REFRESH})
     @Column(name = "test_suite_id")
     private Set<TestCase> testCases;
 
@@ -58,4 +59,5 @@ public class TestSuite extends TanistanBaseEntity<String> {
     public void setChildren(List<TestSuite> children) {
         this.children = children;
     }
+
 }

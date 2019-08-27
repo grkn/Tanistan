@@ -1,8 +1,11 @@
 package com.friends.test.automation.config;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.friends.test.automation.controller.converter.TestCaseDtoToTestCase;
+import com.friends.test.automation.controller.converter.TestCaseInstanceRunnerToInstanceRunnerResource;
+import com.friends.test.automation.controller.converter.TestCaseStepToStepResource;
 import com.friends.test.automation.controller.converter.TestCaseToTestCaseResource;
 import com.friends.test.automation.controller.converter.TestSuiteDtoToTestSuite;
 import com.friends.test.automation.controller.converter.TestSuiteToTestSuiteResource;
@@ -43,6 +46,9 @@ public class GlobalConfig {
         conversionService.addConverter(new UserAuthorizationToUserAuthorizationDtoConverter());
         conversionService.addConverter(new TestSuiteDtoToTestSuite(new TestCaseDtoToTestCase()));
         conversionService.addConverter(new TestSuiteToTestSuiteResource(new TestCaseToTestCaseResource()));
+        conversionService.addConverter(new TestCaseStepToStepResource());
+        conversionService
+                .addConverter(new TestCaseInstanceRunnerToInstanceRunnerResource(new TestCaseStepToStepResource()));
         return conversionService;
     }
 
@@ -73,6 +79,7 @@ public class GlobalConfig {
     public ObjectMapper objectMapper() {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         return objectMapper;
     }
 

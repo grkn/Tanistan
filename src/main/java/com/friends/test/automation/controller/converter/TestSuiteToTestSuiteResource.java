@@ -1,6 +1,6 @@
 package com.friends.test.automation.controller.converter;
 
-import com.friends.test.automation.controller.driver.TestCaseResource;
+import com.friends.test.automation.controller.resource.TestCaseResource;
 import com.friends.test.automation.controller.resource.TestSuiteParentResource;
 import com.friends.test.automation.controller.resource.TestSuiteResource;
 import com.friends.test.automation.entity.TestCase;

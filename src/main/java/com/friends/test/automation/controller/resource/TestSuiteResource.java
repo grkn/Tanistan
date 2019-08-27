@@ -1,7 +1,5 @@
 package com.friends.test.automation.controller.resource;
 
-import com.friends.test.automation.controller.driver.TestCaseResource;
-
 import java.util.List;
 
 public class TestSuiteResource {

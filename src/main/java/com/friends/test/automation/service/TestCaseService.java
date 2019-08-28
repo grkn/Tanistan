@@ -5,6 +5,7 @@ import com.friends.test.automation.entity.TestCase;
 import com.friends.test.automation.entity.TestCaseInstanceRunner;
 import com.friends.test.automation.entity.UserEntity;
 import com.friends.test.automation.exception.AlreadyExistsException;
+import com.friends.test.automation.exception.NotFoundException;
 import com.friends.test.automation.repository.TestCaseInstanceRunnerRepository;
 import com.friends.test.automation.repository.TestCaseRepository;
 import org.springframework.data.domain.Page;
@@ -50,5 +51,10 @@ public class TestCaseService {
 
     public Page<TestCaseInstanceRunner> findAllInstanceRunnersByTestCaseId(String testCaseId, Pageable pageable) {
         return testCaseInstanceRunnerRepository.findAllByTestCaseId(testCaseId, pageable);
+    }
+
+    public TestCase findById(String id) {
+        return testCaseRepository.findById(id).orElseThrow(() -> new NotFoundException(
+                ErrorResource.ErrorContent.builder().message("Test case can not be found right now.").build("")));
     }
 }

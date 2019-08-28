@@ -39,5 +39,3 @@ create table oauth_refresh_token (
 create table oauth_code (
 	code VARCHAR(255), authentication bytea
 );
-
-

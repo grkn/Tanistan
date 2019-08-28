@@ -19,8 +19,6 @@ import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.Date;
@@ -71,19 +69,12 @@ public class CommandRunner implements Runnable {
                     testStep.setRunStatus(true);
                     testStep.setTestCaseInstanceRunner(testCaseInstanceRunner);
                     testStep = testStepRepository.saveAndFlush(testStep);
-                    if (testCaseInstanceRunner.getTestSteps() != null) {
-                        testCaseInstanceRunner.getTestSteps().add(testStep);
-                    } else {
-                        testCaseInstanceRunner.setTestSteps(Lists.newArrayList(testStep));
-                    }
-                    testCaseInstanceRunner = testCaseInstanceRunnerRepository.saveAndFlush(testCaseInstanceRunner);
+                    testCaseInstanceRunner = InstanceRunnerInsert(testCaseInstanceRunner, testStep);
 
                     long s = System.currentTimeMillis();
                     switch (resource.getType()) {
                         case "goToUrl":
-                            NavigateDto navigateDto = new NavigateDto();
-                            navigateDto.setUrl(resource.getNavigateUrl());
-                            defaultResource = driverService.navigate(sessionId, navigateDto).getBody();
+                            defaultResource = navigate(sessionId, resource);
                             break;
                         case "click":
                             defaultResource = click(sessionId, resource);
@@ -95,26 +86,18 @@ public class CommandRunner implements Runnable {
                             return;
                     }
                     if (defaultResource != null && defaultResource.getStatus() != 0) {
-
-                        testStep.setExecutionTime(new Date(System.currentTimeMillis() - s));
-                        testStep.setRunStatus(false);
                         testStep.setStatus(defaultResource.getStatus());
                         testStep.setResult(objectMapper.writeValueAsString(defaultResource.getValue()));
-
                         break;
                     } else {
-                        testStep.setExecutionTime(new Date(System.currentTimeMillis() - s));
-                        testStep.setRunStatus(false);
                         testStep.setStatus(0);
                         testStep.setResult("{\"value\" : \"SUCCESS\"}");
                     }
+                    testStep.setExecutionTime(new Date(System.currentTimeMillis() - s));
+                    testStep.setRunStatus(false);
+
                     testStep = testStepRepository.saveAndFlush(testStep);
-                    if (testCaseInstanceRunner.getTestSteps() != null) {
-                        testCaseInstanceRunner.getTestSteps().add(testStep);
-                    } else {
-                        testCaseInstanceRunner.setTestSteps(Lists.newArrayList(testStep));
-                    }
-                    testCaseInstanceRunner = testCaseInstanceRunnerRepository.saveAndFlush(testCaseInstanceRunner);
+                    testCaseInstanceRunner = InstanceRunnerInsert(testCaseInstanceRunner, testStep);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -127,6 +110,24 @@ public class CommandRunner implements Runnable {
             }
         }
 
+    }
+
+    private TestCaseInstanceRunner InstanceRunnerInsert(TestCaseInstanceRunner testCaseInstanceRunner,
+            TestStep testStep) {
+        if (testCaseInstanceRunner.getTestSteps() != null) {
+            testCaseInstanceRunner.getTestSteps().add(testStep);
+        } else {
+            testCaseInstanceRunner.setTestSteps(Lists.newArrayList(testStep));
+        }
+        testCaseInstanceRunner = testCaseInstanceRunnerRepository.saveAndFlush(testCaseInstanceRunner);
+        return testCaseInstanceRunner;
+    }
+
+    private DefaultResource navigate(String sessionId, RunnableResource resource) {
+        DefaultResource defaultResource;NavigateDto navigateDto = new NavigateDto();
+        navigateDto.setUrl(resource.getNavigateUrl());
+        defaultResource = driverService.navigate(sessionId, navigateDto).getBody();
+        return defaultResource;
     }
 
     private DefaultResource click(String sessionId, RunnableResource resource) {

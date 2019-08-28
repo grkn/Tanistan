@@ -69,4 +69,9 @@ public class TestController {
         return ResponseEntity.ok(new PageImpl(instanceRunnerResources, pageable, testModelPage.getTotalElements()));
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<TestCaseResource> findTestByTestId(@PathVariable String id) {
+        return ResponseEntity.ok(conversionService.convert(this.testCaseService.findById(id), TestCaseResource.class));
+    }
+
 }

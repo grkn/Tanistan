@@ -63,6 +63,9 @@ public class UserService<T extends UserEntity> extends BaseService {
         String password = userEntity.getAccountPhrase();
 
         userEntity.setAccountPhrase(passwordEncoder.encode(password));
+
+        userEntity = userRepository.save(userEntity);
+
         setDefaultAuthorization(userEntity);
 
         userEntity = userRepository.save(userEntity);
@@ -112,7 +115,15 @@ public class UserService<T extends UserEntity> extends BaseService {
     }
 
 
+    @Transactional
     public void deleteUser(String id) {
+        UserEntity userEntity = userRepository.findById(id).orElseThrow(() -> new NotFoundException(
+                ErrorResource.ErrorContent.builder().message("User can not be found when using delete operation")
+                        .build("")));
+        for (UserAuthorization userAuthorization : userEntity.getUserAuthorization()) {
+            userAuthorization.getUserEntity().remove(userEntity);
+            userRepository.flush();
+        }
         userRepository.deleteById(id);
     }
 
@@ -144,7 +155,7 @@ public class UserService<T extends UserEntity> extends BaseService {
         }
         if (!CollectionUtils.isEmpty(user.getUserAuthorization())) {
             user.getUserAuthorization().forEach(userAuthorization -> {
-                userAuthorization.setUserEntity(userEntity);
+                userAuthorization.getUserEntity().add(userEntity);
                 userEntity.getUserAuthorization().add(userAuthorization);
             });
 
@@ -172,10 +183,10 @@ public class UserService<T extends UserEntity> extends BaseService {
 
     private void setDefaultAuthorization(UserEntity userEntity) {
         UserAuthorization userAuthorization = userAuthorizationRepository.findByAuthority(DEFAULT_AUTH).get();
-        userAuthorization.setUserEntity(userEntity);
+        userAuthorization.getUserEntity().add(userEntity);
 
         userEntity.setUserAuthorization(new HashSet<>());
-        userEntity.getUserAuthorization().add(userAuthorizationRepository.save(userAuthorization));
+        userEntity.getUserAuthorization().add(userAuthorization);
 
     }
 

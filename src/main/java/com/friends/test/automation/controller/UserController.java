@@ -65,7 +65,7 @@ public class UserController {
 
 	@PatchMapping(value = "/{id}")
 	@PreAuthorize(value = "hasRole('ROLE_ADMIN')")
-	public ResponseEntity<UserResource> updateUser(@PathVariable String id, @RequestBody UserDto userDto) {
+	public ResponseEntity<UserResource> updateUser(@PathVariable String id, @RequestBody @Valid UserDto userDto) {
 		UserEntity result = userService.updateUser(id, conversionService.convert(userDto, UserEntity.class));
 		return ResponseEntity.of(Optional.of(conversionService.convert(result, UserResource.class)));
 	}

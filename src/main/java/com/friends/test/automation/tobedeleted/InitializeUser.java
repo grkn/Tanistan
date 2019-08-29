@@ -8,6 +8,7 @@ import com.friends.test.automation.repository.TestSuiteRepository;
 import com.friends.test.automation.repository.UserAuthorizationRepository;
 import com.friends.test.automation.repository.UserRepository;
 import com.friends.test.automation.util.SecurityUtil;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -16,17 +17,14 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
-import org.springframework.security.oauth2.provider.OAuth2Request;
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.List;
 
 /**
  * TO BE DELETED
@@ -85,10 +83,12 @@ public class InitializeUser {
 
             userEntity.setUserAuthorization(Sets.newHashSet());
 
+            List<UserEntity> userList = Lists.newArrayList(userEntity);
+
             if (!userAuthorizationRepository.existsByAuthority("ROLE_ADMIN")) {
                 UserAuthorization userAuth = new UserAuthorization();
                 userAuth.setAuthority("ROLE_ADMIN");
-                userAuth.setUserEntity(userEntity);
+                userAuth.setUserEntity(userList);
                 userEntity.getUserAuthorization().add(userAuthorizationRepository.save(userAuth));
             } else {
                 userEntity.getUserAuthorization().add(userAuthorizationRepository.findByAuthority("ROLE_ADMIN").get());
@@ -97,7 +97,7 @@ public class InitializeUser {
             if (!userAuthorizationRepository.existsByAuthority("ROLE_USER")) {
                 UserAuthorization userAuth2 = new UserAuthorization();
                 userAuth2.setAuthority("ROLE_USER");
-                userAuth2.setUserEntity(userEntity);
+                userAuth2.setUserEntity(userList);
                 userEntity.getUserAuthorization().add(userAuthorizationRepository.save(userAuth2));
             } else {
                 userEntity.getUserAuthorization().add(userAuthorizationRepository.findByAuthority("ROLE_USER").get());
@@ -117,19 +117,13 @@ public class InitializeUser {
                                 authentication)).getValue();
 
                 clientDetailsRepository
-                        .insertAccessToken(clientId, isEncoded ? encodedPassword : password, "ROLE_USER,ROLE_ADMIN", 900,
+                        .insertAccessToken(clientId, isEncoded ? encodedPassword : password, "ROLE_USER,ROLE_ADMIN",
+                                900,
                                 2592000);
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
         }
-
-        TestSuite testSuite = new TestSuite();
-        testSuite.setName("Root");
-        testSuite.setParent(null);
-        testSuite.setChildren(null);
-        testSuiteRepository.save(testSuite);
-
     }
 }
 

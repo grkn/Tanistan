@@ -46,4 +46,8 @@ public class UserAuthorizationService extends BaseService {
     protected void saveAuthorization(UserAuthorization userAuthorization) {
         userAuthorizationRepository.save(userAuthorization);
     }
+
+    public void deleteById(String id) {
+        userAuthorizationRepository.deleteById(id);
+    }
 }

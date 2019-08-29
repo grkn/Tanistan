@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -44,7 +45,8 @@ public class UserEntity extends TanistanBaseEntity<String> {
     @Enumerated(value = EnumType.STRING)
     private AttemptType attemptType;
 
-    @OneToMany(mappedBy = "userEntity", fetch = FetchType.EAGER)
+    @ManyToMany(mappedBy = "userEntity", fetch = FetchType.EAGER)
+    @Column(name = "user_entity_id")
     private Set<UserAuthorization> userAuthorization;
 
     @OneToMany(mappedBy = "userEntity", fetch = FetchType.LAZY)

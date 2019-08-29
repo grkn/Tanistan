@@ -26,7 +26,9 @@ public class UserDtoToUserEntityConverter implements Converter<UserDto, UserEnti
             userEntity.setUserAuthorization(source.getUserAuthorzation().stream().map(uAuth -> {
                 UserAuthorization userAuthorization = new UserAuthorization();
                 userAuthorization.setAuthority(uAuth.getAuhtorization());
-                userAuthorization.setUserEntity(userEntity);
+                if (!CollectionUtils.isEmpty(userAuthorization.getUserEntity())) {
+                    userAuthorization.getUserEntity().add(userEntity);
+                }
                 return userAuthorization;
             }).collect(Collectors.toSet()));
         }

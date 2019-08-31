@@ -5,6 +5,7 @@ import com.friends.test.automation.command.runner.CommandRunner;
 import com.friends.test.automation.controller.resource.ErrorResource;
 import com.friends.test.automation.entity.TestCase;
 import com.friends.test.automation.entity.TestSuite;
+import com.friends.test.automation.entity.UserEntity;
 import com.friends.test.automation.exception.NotFoundException;
 import com.friends.test.automation.repository.TestCaseInstanceRunnerRepository;
 import com.friends.test.automation.repository.TestCaseRepository;
@@ -21,7 +22,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 @Service
-public class TestSuiteService {
+public class TestSuiteService extends BaseService {
 
     private final TestSuiteRepository testSuiteRepository;
     private final TestCaseRepository testCaseRepository;
@@ -29,6 +30,7 @@ public class TestSuiteService {
     private final TestCaseInstanceRunnerRepository testCaseInstanceRunnerRepository;
     private final TestStepRepository testStepRepository;
     private final ObjectMapper objectMapper;
+    private final UserService<UserEntity> userService;
 
     ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(10, 20,
             0L, TimeUnit.MILLISECONDS,
@@ -37,13 +39,15 @@ public class TestSuiteService {
     public TestSuiteService(TestSuiteRepository testSuiteRepository,
             TestCaseRepository testCaseRepository, DriverService driverService,
             TestCaseInstanceRunnerRepository testCaseInstanceRunnerRepository,
-            TestStepRepository testStepRepository, ObjectMapper objectMapper) {
+            TestStepRepository testStepRepository, ObjectMapper objectMapper,
+            UserService<UserEntity> userService) {
         this.testSuiteRepository = testSuiteRepository;
         this.testCaseRepository = testCaseRepository;
         this.driverService = driverService;
         this.testCaseInstanceRunnerRepository = testCaseInstanceRunnerRepository;
         this.testStepRepository = testStepRepository;
         this.objectMapper = objectMapper;
+        this.userService = userService;
     }
 
     public TestSuite createTestSuite(TestSuite testSuite) {
@@ -56,7 +60,7 @@ public class TestSuiteService {
             testSuite.getTestCases().add(test);
             test.getTestSuite().add(testSuite);
         });
-
+        testSuite.setUserEntity(userService.getUserByUsernameOrEmail(getCurrentUser(), getCurrentUser()));
         return testSuiteRepository.save(testSuite);
     }
 
@@ -121,8 +125,11 @@ public class TestSuiteService {
                 ErrorResource.ErrorContent.builder().message("TestSuite can not be found so can not run test cases")
                         .build(""))).getTestCases();
         for (TestCase testCase : testCases) {
-            threadPoolExecutor.submit(new CommandRunner(objectMapper, driverService, testCase,
-                    testCaseInstanceRunnerRepository, testStepRepository));
+            if (testCase.getUserEntity().getEmailAddress().equals(getCurrentUser()) || testCase.getUserEntity()
+                    .getAccountName().equals(getCurrentUser())) {
+                threadPoolExecutor.submit(new CommandRunner(objectMapper, driverService, testCase,
+                        testCaseInstanceRunnerRepository, testStepRepository));
+            }
         }
     }
 }

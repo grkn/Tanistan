@@ -7,6 +7,7 @@ import javax.persistence.FetchType;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.util.List;
 import java.util.Set;
@@ -27,6 +28,9 @@ public class TestSuite extends TanistanBaseEntity<String> {
 
     @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)
     private List<TestSuite> children;
+
+    @OneToOne(mappedBy = "testSuite", fetch = FetchType.EAGER)
+    private UserEntity userEntity;
 
     public Set<TestCase> getTestCases() {
         return testCases;
@@ -60,4 +64,11 @@ public class TestSuite extends TanistanBaseEntity<String> {
         this.children = children;
     }
 
+    public UserEntity getUserEntity() {
+        return userEntity;
+    }
+
+    public void setUserEntity(UserEntity userEntity) {
+        this.userEntity = userEntity;
+    }
 }

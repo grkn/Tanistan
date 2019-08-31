@@ -6,6 +6,7 @@ import com.friends.test.automation.controller.resource.TestSuiteResource;
 import com.friends.test.automation.entity.TestCase;
 import com.friends.test.automation.entity.TestSuite;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;

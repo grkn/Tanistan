@@ -9,6 +9,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -54,6 +55,9 @@ public class UserEntity extends TanistanBaseEntity<String> {
 
     @OneToMany(mappedBy = "userEntity", fetch = FetchType.LAZY)
     private Set<TestCaseInstanceRunner> testCaseInstanceRunners;
+
+    @OneToOne
+    private TestSuite testSuite;
 
     public UserEntity() {
         super();
@@ -178,5 +182,13 @@ public class UserEntity extends TanistanBaseEntity<String> {
     public void setTestCaseInstanceRunners(
             Set<TestCaseInstanceRunner> testCaseInstanceRunners) {
         this.testCaseInstanceRunners = testCaseInstanceRunners;
+    }
+
+    public TestSuite getTestSuite() {
+        return testSuite;
+    }
+
+    public void setTestSuite(TestSuite testSuite) {
+        this.testSuite = testSuite;
     }
 }

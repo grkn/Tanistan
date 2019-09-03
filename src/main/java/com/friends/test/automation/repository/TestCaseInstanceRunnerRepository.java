@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 
 public interface TestCaseInstanceRunnerRepository extends BaseTanistanJpaRepository<TestCaseInstanceRunner> {
 
-    Page<TestCaseInstanceRunner> findAllByTestCaseId(String testCaseId, Pageable pageable);
+    Page<TestCaseInstanceRunner> findAllByTestCaseIdAndTestCaseTestProjectId(String testCaseId, String projectId,
+            Pageable pageable);
 
 }

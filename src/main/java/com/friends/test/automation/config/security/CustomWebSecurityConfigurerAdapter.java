@@ -26,7 +26,8 @@ public class CustomWebSecurityConfigurerAdapter extends WebSecurityConfigurerAda
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.csrf().disable().cors().disable().authorizeRequests().antMatchers("/tanistan/**").fullyAuthenticated().and()
+        http.csrf().disable().cors().disable().authorizeRequests().antMatchers("/tanistan/**")
+                .fullyAuthenticated().and().authorizeRequests().antMatchers("/register").permitAll().and()
                 .authenticationProvider(customAuthenticationProvider).userDetailsService(customUserDetailService)
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().formLogin().loginProcessingUrl("/login")

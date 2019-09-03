@@ -4,11 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.friends.test.automation.command.runner.CommandRunner;
 import com.friends.test.automation.controller.resource.ErrorResource;
 import com.friends.test.automation.entity.TestCase;
+import com.friends.test.automation.entity.TestProject;
 import com.friends.test.automation.entity.TestSuite;
 import com.friends.test.automation.entity.UserEntity;
 import com.friends.test.automation.exception.NotFoundException;
 import com.friends.test.automation.repository.TestCaseInstanceRunnerRepository;
 import com.friends.test.automation.repository.TestCaseRepository;
+import com.friends.test.automation.repository.TestProjectRepository;
 import com.friends.test.automation.repository.TestStepRepository;
 import com.friends.test.automation.repository.TestSuiteRepository;
 import org.springframework.stereotype.Service;
@@ -31,6 +33,7 @@ public class TestSuiteService extends BaseService {
     private final TestStepRepository testStepRepository;
     private final ObjectMapper objectMapper;
     private final UserService<UserEntity> userService;
+    private final TestProjectRepository testProjectRepository;
 
     ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(10, 20,
             0L, TimeUnit.MILLISECONDS,
@@ -40,7 +43,8 @@ public class TestSuiteService extends BaseService {
             TestCaseRepository testCaseRepository, DriverService driverService,
             TestCaseInstanceRunnerRepository testCaseInstanceRunnerRepository,
             TestStepRepository testStepRepository, ObjectMapper objectMapper,
-            UserService<UserEntity> userService) {
+            UserService<UserEntity> userService,
+            TestProjectRepository testProjectRepository) {
         this.testSuiteRepository = testSuiteRepository;
         this.testCaseRepository = testCaseRepository;
         this.driverService = driverService;
@@ -48,9 +52,10 @@ public class TestSuiteService extends BaseService {
         this.testStepRepository = testStepRepository;
         this.objectMapper = objectMapper;
         this.userService = userService;
+        this.testProjectRepository = testProjectRepository;
     }
 
-    public TestSuite createTestSuite(TestSuite testSuite) {
+    public TestSuite createTestSuite(TestSuite testSuite, String projectId) {
         TestSuite parent = checkIfParentExists(testSuite.getParent().getId());
         testSuite.setParent(parent);
         Set<TestCase> testCaseSet = testSuite.getTestCases();
@@ -61,6 +66,10 @@ public class TestSuiteService extends BaseService {
             test.getTestSuite().add(testSuite);
         });
         testSuite.setUserEntity(userService.getUserByUsernameOrEmail(getCurrentUser(), getCurrentUser()));
+
+        TestProject testProject = testProjectRepository.findById(projectId).orElseThrow(() -> new NotFoundException(
+                ErrorResource.ErrorContent.builder().message("Project does not exists").build("")));
+        testSuite.setTestProject(testProject);
         return testSuiteRepository.save(testSuite);
     }
 
@@ -69,9 +78,10 @@ public class TestSuiteService extends BaseService {
                 ErrorResource.ErrorContent.builder().message("Parent test suite can not be found").build("")));
     }
 
-    public TestSuite getChildren(String parentId) {
-        return testSuiteRepository.findById(parentId).orElseThrow(() -> new NotFoundException(
-                ErrorResource.ErrorContent.builder().message("Parent can not be found").build("")));
+    public TestSuite getChildren(String parentId, String projectId) {
+        return testSuiteRepository.findByIdAndTestProjectId(parentId, projectId)
+                .orElseThrow(() -> new NotFoundException(
+                        ErrorResource.ErrorContent.builder().message("Parent can not be found").build("")));
     }
 
     public TestSuite getTestSuiteById(String id) {
@@ -84,9 +94,10 @@ public class TestSuiteService extends BaseService {
     }
 
     @Transactional
-    public TestSuite addTestCaseToTestSuite(String suiteId, List<String> testIds) {
-        TestSuite testSuite = testSuiteRepository.findById(suiteId).orElseThrow(() -> new NotFoundException(
-                ErrorResource.ErrorContent.builder().message("Test Suite can not be found.").build("")));
+    public TestSuite addTestCaseToTestSuite(String suiteId, List<String> testIds, String projectId) {
+        TestSuite testSuite = testSuiteRepository.findByIdAndTestProjectId(suiteId, projectId)
+                .orElseThrow(() -> new NotFoundException(
+                        ErrorResource.ErrorContent.builder().message("Test Suite can not be found.").build("")));
         for (String testCaseId : testIds) {
             TestCase testCase = testCaseRepository.findById(testCaseId).orElseThrow(() ->
                     new NotFoundException(
@@ -101,14 +112,16 @@ public class TestSuiteService extends BaseService {
         return testSuiteRepository.saveAndFlush(testSuite);
     }
 
-    public List<TestCase> getTestCasesBySuiteIdAndUserId(String suiteId, String userId) {
-        return testCaseRepository.findAllByUserEntityIdAndTestSuiteIdOrderByCreatedDateDesc(userId, suiteId);
+    public List<TestCase> getTestCasesBySuiteIdAndUserId(String suiteId, String userId, String projectId) {
+        return testCaseRepository
+                .findAllByUserEntityIdAndTestSuiteIdAndTestProjectIdOrderByCreatedDateDesc(userId, suiteId, projectId);
     }
 
     @Transactional
-    public void deleteTestCase(String suiteId, String testCaseId) {
-        TestSuite testSuite = this.testSuiteRepository.findById(suiteId).orElseThrow(() -> new NotFoundException(
-                ErrorResource.ErrorContent.builder().message("Test suite can not be found").build("")));
+    public void deleteTestCase(String suiteId, String testCaseId, String projectId) {
+        TestSuite testSuite = this.testSuiteRepository.findByIdAndTestProjectId(suiteId, projectId)
+                .orElseThrow(() -> new NotFoundException(
+                        ErrorResource.ErrorContent.builder().message("Test suite can not be found").build("")));
         List<TestCase> removeList = new ArrayList<>();
         testSuite.getTestCases().forEach(testCase -> {
             if (testCaseId.equals(testCase.getId())) {
@@ -120,10 +133,12 @@ public class TestSuiteService extends BaseService {
         testSuiteRepository.saveAndFlush(testSuite);
     }
 
-    public void runTestCase(String suiteId) {
-        Set<TestCase> testCases = testSuiteRepository.findById(suiteId).orElseThrow(() -> new NotFoundException(
-                ErrorResource.ErrorContent.builder().message("TestSuite can not be found so can not run test cases")
-                        .build(""))).getTestCases();
+    public void runTestCase(String suiteId, String projectId) {
+        Set<TestCase> testCases = testSuiteRepository.findByIdAndTestProjectId(suiteId, projectId)
+                .orElseThrow(() -> new NotFoundException(
+                        ErrorResource.ErrorContent.builder()
+                                .message("TestSuite can not be found so can not run test cases")
+                                .build(""))).getTestCases();
         for (TestCase testCase : testCases) {
             if (testCase.getUserEntity().getEmailAddress().equals(getCurrentUser()) || testCase.getUserEntity()
                     .getAccountName().equals(getCurrentUser())) {

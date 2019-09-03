@@ -23,6 +23,10 @@ public class TestStep extends TanistanBaseEntity<String> {
     @ManyToOne
     private TestCaseInstanceRunner testCaseInstanceRunner;
 
+    public TestStep() {
+
+    }
+
     public boolean isRunStatus() {
         return runStatus;
     }

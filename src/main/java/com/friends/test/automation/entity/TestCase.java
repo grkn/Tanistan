@@ -32,6 +32,13 @@ public class TestCase extends TanistanBaseEntity<String> {
     @OneToMany(mappedBy = "testCase")
     private List<TestCaseInstanceRunner> testCaseInstanceRunners;
 
+    @ManyToOne
+    private TestProject testProject;
+
+    public TestCase() {
+
+    }
+
     public String getTestCommands() {
         return testCommands;
     }
@@ -71,5 +78,13 @@ public class TestCase extends TanistanBaseEntity<String> {
     public void setTestCaseInstanceRunners(
             List<TestCaseInstanceRunner> testCaseInstanceRunners) {
         this.testCaseInstanceRunners = testCaseInstanceRunners;
+    }
+
+    public TestProject getTestProject() {
+        return testProject;
+    }
+
+    public void setTestProject(TestProject testProject) {
+        this.testProject = testProject;
     }
 }

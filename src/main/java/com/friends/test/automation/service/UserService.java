@@ -1,10 +1,12 @@
 package com.friends.test.automation.service;
 
 import com.friends.test.automation.controller.resource.ErrorResource;
+import com.friends.test.automation.entity.Company;
 import com.friends.test.automation.entity.UserAuthorization;
 import com.friends.test.automation.entity.UserEntity;
 import com.friends.test.automation.exception.AlreadyExistsException;
 import com.friends.test.automation.exception.NotFoundException;
+import com.friends.test.automation.repository.CompanyRepository;
 import com.friends.test.automation.repository.OAuthClientDetailsRepository;
 import com.friends.test.automation.repository.UserAuthorizationRepository;
 import com.friends.test.automation.repository.UserRepository;
@@ -38,39 +40,32 @@ public class UserService<T extends UserEntity> extends BaseService {
     private final UserAuthorizationRepository userAuthorizationRepository;
     private final OAuthClientDetailsRepository oAuthClientDetailsRepository;
     private static final String DEFAULT_AUTH = "ROLE_USER";
+    private static final String ADMIN_AUTH = "ROLE_ADMIN";
     private final DefaultTokenServices defaultTokenServices;
+    private final CompanyRepository companyRepository;
     private final Logger logger = LoggerFactory.getLogger(UserService.class);
 
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder,
             UserAuthorizationRepository userAuthorizationRepository,
             OAuthClientDetailsRepository oAuthClientDetailsRepository,
-            DefaultTokenServices defaultTokenServices) {
+            DefaultTokenServices defaultTokenServices,
+            CompanyRepository companyRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.userAuthorizationRepository = userAuthorizationRepository;
         this.oAuthClientDetailsRepository = oAuthClientDetailsRepository;
         this.defaultTokenServices = defaultTokenServices;
+        this.companyRepository = companyRepository;
     }
 
     @Transactional
-    public UserEntity createUserEntity(UserEntity userEntity) {
-        if (userRepository
-                .existsByAccountNameOrEmailAddress(userEntity.getAccountName(), userEntity.getEmailAddress())) {
-            throw new AlreadyExistsException(ErrorResource.ErrorContent.builder().message(
-                    String.format("User is already exist by given email address: %s or account: %s",
-                            userEntity.getAccountName(), userEntity.getEmailAddress())).build(""));
+    public UserEntity createUserEntity(UserEntity userEntity, String companyId) {
+        if (companyId != null) {
+            Company company = companyRepository.findById(companyId).orElseThrow(() -> new NotFoundException(
+                    ErrorResource.ErrorContent.builder().message("Company does not exists").build("")));
+            userEntity.setCompany(company);
         }
-        String password = userEntity.getAccountPhrase();
-
-        userEntity.setAccountPhrase(passwordEncoder.encode(password));
-
-        userEntity = userRepository.save(userEntity);
-
-        setDefaultAuthorization(userEntity);
-
-        userEntity = userRepository.save(userEntity);
-        setAccessToken(userEntity, password);
-        return userEntity;
+        return createUser(userEntity, DEFAULT_AUTH);
     }
 
     public Page<UserEntity> getUsers(Pageable pageable) {
@@ -181,8 +176,8 @@ public class UserService<T extends UserEntity> extends BaseService {
         }
     }
 
-    private void setDefaultAuthorization(UserEntity userEntity) {
-        UserAuthorization userAuthorization = userAuthorizationRepository.findByAuthority(DEFAULT_AUTH).get();
+    private void setDefaultAuthorization(UserEntity userEntity, String auth) {
+        UserAuthorization userAuthorization = userAuthorizationRepository.findByAuthority(auth).get();
         userAuthorization.getUserEntity().add(userEntity);
 
         userEntity.setUserAuthorization(new HashSet<>());
@@ -190,13 +185,13 @@ public class UserService<T extends UserEntity> extends BaseService {
 
     }
 
-    private void setAccessToken(UserEntity userEntity, String password) {
+    private void setAccessToken(UserEntity userEntity, String password, String auth) {
         // 30 days to refreshToken, 15 min to accessToken
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(
                 StringUtils.isEmpty(userEntity.getAccountName()) ? userEntity.getEmailAddress()
                         : userEntity.getAccountName(), password,
-                Sets.newHashSet(new SimpleGrantedAuthority(DEFAULT_AUTH)));
+                Sets.newHashSet(new SimpleGrantedAuthority(auth)));
 
         defaultTokenServices
                 .createAccessToken(new OAuth2Authentication(SecurityUtil.prepareOAuth2Request(authentication),
@@ -205,7 +200,7 @@ public class UserService<T extends UserEntity> extends BaseService {
         try {
             oAuthClientDetailsRepository
                     .insertAccessToken(StringUtils.isEmpty(userEntity.getAccountName()) ? userEntity.getEmailAddress()
-                            : userEntity.getAccountName(), password, DEFAULT_AUTH, 900, 2592000);
+                            : userEntity.getAccountName(), password, auth, 900, 2592000);
         } catch (Exception ex) {
             logger.warn(
                     String.format("User with name : %s already created in auth table", userEntity.getEmailAddress()),
@@ -229,4 +224,55 @@ public class UserService<T extends UserEntity> extends BaseService {
         oAuthClientDetailsRepository.updateClientIdAndClientSecret(clientId, clientSecret, oldEmailAddress, false);
     }
 
+    @Transactional
+    public UserEntity register(Company company) {
+        Company persistedCompany = companyRepository.findByNameIgnoreCaseContains(company.getName());
+        if (persistedCompany != null) {
+            UserEntity userEntity = setCompanyToUser(company, persistedCompany);
+            userEntity = createUser(userEntity, DEFAULT_AUTH);
+            companyRepository.save(persistedCompany);
+            return userEntity;
+        }
+        company = companyRepository.save(company);
+        UserEntity userEntity = createAdminUser(company.getUsers().get(0));
+        userEntity.setCompany(company);
+        return userEntity;
+    }
+
+    private UserEntity setCompanyToUser(Company company, Company persistedCompany) {
+        UserEntity userEntity = company.getUsers().get(0);
+        userEntity.setCompany(persistedCompany);
+        persistedCompany.getUsers().add(userEntity);
+        return userEntity;
+    }
+
+    private UserEntity createAdminUser(UserEntity userEntity) {
+        return createUser(userEntity, ADMIN_AUTH);
+    }
+
+    private UserEntity createUser(UserEntity userEntity, String auth) {
+        if (userRepository
+                .existsByAccountNameOrEmailAddress(userEntity.getAccountName(), userEntity.getEmailAddress())) {
+            throw new AlreadyExistsException(ErrorResource.ErrorContent.builder().message(
+                    String.format("User is already exist by given email address: %s or account: %s",
+                            userEntity.getAccountName(), userEntity.getEmailAddress())).build(""));
+        }
+        String password = userEntity.getAccountPhrase();
+
+        userEntity.setAccountPhrase(passwordEncoder.encode(password));
+
+        userEntity = userRepository.save(userEntity);
+
+        setDefaultAuthorization(userEntity, auth);
+
+        userEntity = userRepository.save(userEntity);
+        setAccessToken(userEntity, password, auth);
+        return userEntity;
+    }
+
+    public Page<UserEntity> getUsersByCompanyId(String companyId, Pageable pageable) {
+        return userRepository.findAllByCompanyId(companyId, pageable);
+    }
+
 }
+

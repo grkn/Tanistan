@@ -14,6 +14,7 @@ public class UserDtoToUserEntityConverter implements Converter<UserDto, UserEnti
     @Override
     public UserEntity convert(UserDto source) {
         UserEntity userEntity = new UserEntity();
+        userEntity.setId(source.getId());
         userEntity.setName(source.getName());
         userEntity.setBirthDay(source.getBirthDay());
         userEntity.setEmailAddress(source.getEmailAddress());
@@ -22,10 +23,11 @@ public class UserDtoToUserEntityConverter implements Converter<UserDto, UserEnti
         userEntity.setPhoneNumber(source.getPhoneNumber());
         userEntity.setSecretQuestion(source.getSecretQuestion());
         userEntity.setAccountName(source.getAccountName());
-        if (!CollectionUtils.isEmpty(source.getUserAuthorzation())) {
-            userEntity.setUserAuthorization(source.getUserAuthorzation().stream().map(uAuth -> {
+        if (!CollectionUtils.isEmpty(source.getUserAuthorization())) {
+            userEntity.setUserAuthorization(source.getUserAuthorization().stream().map(uAuth -> {
                 UserAuthorization userAuthorization = new UserAuthorization();
-                userAuthorization.setAuthority(uAuth.getAuhtorization());
+                userAuthorization.setAuthority(uAuth.getAuthorization());
+                userAuthorization.setId(uAuth.getId());
                 if (!CollectionUtils.isEmpty(userAuthorization.getUserEntity())) {
                     userAuthorization.getUserEntity().add(userEntity);
                 }

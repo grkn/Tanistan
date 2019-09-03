@@ -7,7 +7,10 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -15,12 +18,10 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 @Entity
-//@Builder
-//@AllArgsConstructor
-//@NoArgsConstructor
 @Table(name = "tanistan_user", uniqueConstraints = {@UniqueConstraint(columnNames = {"accountName", "emailAddress"})})
 public class UserEntity extends TanistanBaseEntity<String> {
 
@@ -58,6 +59,15 @@ public class UserEntity extends TanistanBaseEntity<String> {
 
     @OneToOne
     private TestSuite testSuite;
+
+    @ManyToMany
+    @JoinTable(name = "test_project_user_rel",
+            joinColumns = @JoinColumn(name = "id"),
+            inverseJoinColumns = @JoinColumn(name = "project_id"))
+    private List<TestProject> projects;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    private Company company;
 
     public UserEntity() {
         super();
@@ -190,5 +200,21 @@ public class UserEntity extends TanistanBaseEntity<String> {
 
     public void setTestSuite(TestSuite testSuite) {
         this.testSuite = testSuite;
+    }
+
+    public List<TestProject> getProjects() {
+        return projects;
+    }
+
+    public void setProjects(List<TestProject> projects) {
+        this.projects = projects;
+    }
+
+    public Company getCompany() {
+        return company;
+    }
+
+    public void setCompany(Company company) {
+        this.company = company;
     }
 }

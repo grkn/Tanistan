@@ -16,7 +16,6 @@ import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -44,11 +43,15 @@ public class CustomAuthSuccessHandler implements AuthenticationSuccessHandler {
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-            Authentication authentication) throws IOException, ServletException {
+            Authentication authentication) throws IOException {
 
-        UserResource userResource = conversionService
-                .convert(userService.getUserByUsernameOrEmail(authentication.getPrincipal().toString(),
-                        authentication.getPrincipal().toString()), UserResource.class);
+        UserEntity userEntity = userService.getUserByUsernameOrEmail(authentication.getPrincipal().toString(),
+                authentication.getPrincipal().toString());
+
+        UserResource userResource = conversionService.convert(userEntity, UserResource.class);
+        if(userEntity.getCompany() != null) {
+            userResource.setCompanyId(userEntity.getCompany().getId());
+        }
         UserResourceWithAccessToken userResourceWithAccessToken = new UserResourceWithAccessToken(userResource);
 
         OAuth2Request oAuth2Request = prepareOAuth2Request(authentication);

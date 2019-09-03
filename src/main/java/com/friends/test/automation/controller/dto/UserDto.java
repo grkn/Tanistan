@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.Set;
 
@@ -19,6 +18,7 @@ import java.util.Set;
  */
 public class UserDto {
 
+    private String id;
     @NotBlank
     private String name;
     private String middleName;
@@ -35,9 +35,13 @@ public class UserDto {
 //    @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}$"
 //            , message = "Password must be at least 8 characters. Also Password must contain at least one special, one lowercase character and one special character.")
     private String accountPhrase;
-    private Set<UserAuthorizationDto> userAuthorzation;
+    private Set<UserAuthorizationDto> userAuthorization;
     private String attemptType;
     private Integer loginAttempt;
+
+    public UserDto() {
+
+    }
 
     public String getName() {
         return name;
@@ -127,12 +131,12 @@ public class UserDto {
         this.loginAttempt = loginAttempt;
     }
 
-    public Set<UserAuthorizationDto> getUserAuthorzation() {
-        return userAuthorzation;
+    public Set<UserAuthorizationDto> getUserAuthorization() {
+        return userAuthorization;
     }
 
-    public void setUserAuthorzation(Set<UserAuthorizationDto> userAuthorzation) {
-        this.userAuthorzation = userAuthorzation;
+    public void setUserAuthorization(Set<UserAuthorizationDto> userAuthorization) {
+        this.userAuthorization = userAuthorization;
     }
 
     public String getAccountName() {
@@ -143,4 +147,11 @@ public class UserDto {
         this.accountName = accountName;
     }
 
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 }

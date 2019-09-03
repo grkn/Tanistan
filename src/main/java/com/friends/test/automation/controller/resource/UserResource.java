@@ -18,6 +18,8 @@ public class UserResource {
     private String secretQuestion;
     private String accountName;
     private Set<UserAuthorizationResource> userAuthorization;
+    private String companyId;
+
 
     public UserResource(UserResource userResource) {
         this.id = userResource.id;
@@ -30,6 +32,7 @@ public class UserResource {
         this.secretQuestion = userResource.secretQuestion;
         this.accountName = userResource.accountName;
         this.userAuthorization = userResource.userAuthorization;
+        this.companyId = userResource.companyId;
     }
 
     public UserResource() {
@@ -116,4 +119,11 @@ public class UserResource {
         this.accountName = accountName;
     }
 
+    public String getCompanyId() {
+        return companyId;
+    }
+
+    public void setCompanyId(String companyId) {
+        this.companyId = companyId;
+    }
 }

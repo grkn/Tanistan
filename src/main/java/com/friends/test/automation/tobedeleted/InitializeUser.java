@@ -103,11 +103,21 @@ public class InitializeUser {
                 userEntity.getUserAuthorization().add(userAuthorizationRepository.findByAuthority("ROLE_USER").get());
             }
 
+            if (!userAuthorizationRepository.existsByAuthority("ROLE_ROOT")) {
+                UserAuthorization userAuth2 = new UserAuthorization();
+                userAuth2.setAuthority("ROLE_ROOT");
+                userAuth2.setUserEntity(userList);
+                userEntity.getUserAuthorization().add(userAuthorizationRepository.save(userAuth2));
+            } else {
+                userEntity.getUserAuthorization().add(userAuthorizationRepository.findByAuthority("ROLE_ROOT").get());
+            }
+
             userRepository.save(userEntity);
             try {
                 Collection<GrantedAuthority> grantedAuthorities = new HashSet<>();
                 grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
                 grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+                grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_ROOT"));
 
                 Authentication authentication = new UsernamePasswordAuthenticationToken(clientId,
                         isEncoded ? encodedPassword : password,
@@ -117,13 +127,22 @@ public class InitializeUser {
                                 authentication)).getValue();
 
                 clientDetailsRepository
-                        .insertAccessToken(clientId, isEncoded ? encodedPassword : password, "ROLE_USER,ROLE_ADMIN",
+                        .insertAccessToken(clientId, isEncoded ? encodedPassword : password,
+                                "ROLE_USER,ROLE_ADMIN,ROLE_ROOT",
                                 900,
                                 2592000);
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
         }
+
+        TestSuite testSuite = new TestSuite();
+        testSuite.setName("Root");
+        testSuite.setParent(null);
+        testSuite.setChildren(null);
+        testSuite.setUserEntity(null);
+        testSuite.setTestProject(null);
+        testSuiteRepository.save(testSuite);
     }
 }
 

@@ -7,6 +7,8 @@ import com.friends.test.automation.controller.converter.TestCaseDtoToTestCase;
 import com.friends.test.automation.controller.converter.TestCaseInstanceRunnerToInstanceRunnerResource;
 import com.friends.test.automation.controller.converter.TestCaseStepToStepResource;
 import com.friends.test.automation.controller.converter.TestCaseToTestCaseResource;
+import com.friends.test.automation.controller.converter.TestProjectDtoToTestProject;
+import com.friends.test.automation.controller.converter.TestProjectToTestProjectResource;
 import com.friends.test.automation.controller.converter.TestSuiteDtoToTestSuite;
 import com.friends.test.automation.controller.converter.TestSuiteToTestSuiteResource;
 import com.friends.test.automation.controller.converter.UserAuthorizationToUserAuthorizationDtoConverter;
@@ -49,6 +51,12 @@ public class GlobalConfig {
         conversionService.addConverter(new TestCaseStepToStepResource());
         conversionService
                 .addConverter(new TestCaseInstanceRunnerToInstanceRunnerResource(new TestCaseStepToStepResource()));
+        conversionService.addConverter(
+                new TestProjectDtoToTestProject(new UserDtoToUserEntityConverter(),
+                        new TestSuiteDtoToTestSuite(new TestCaseDtoToTestCase()),
+                        new TestCaseDtoToTestCase()));
+        conversionService.addConverter(new TestProjectToTestProjectResource(new TestCaseToTestCaseResource(),
+                new TestSuiteToTestSuiteResource(new TestCaseToTestCaseResource()), new UserToUserResourceConverter()));
         return conversionService;
     }
 

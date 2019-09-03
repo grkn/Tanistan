@@ -32,6 +32,13 @@ public class TestSuite extends TanistanBaseEntity<String> {
     @OneToOne(mappedBy = "testSuite", fetch = FetchType.EAGER)
     private UserEntity userEntity;
 
+    @ManyToOne
+    private TestProject testProject;
+
+    public TestSuite() {
+
+    }
+
     public Set<TestCase> getTestCases() {
         return testCases;
     }
@@ -70,5 +77,13 @@ public class TestSuite extends TanistanBaseEntity<String> {
 
     public void setUserEntity(UserEntity userEntity) {
         this.userEntity = userEntity;
+    }
+
+    public TestProject getTestProject() {
+        return testProject;
+    }
+
+    public void setTestProject(TestProject testProject) {
+        this.testProject = testProject;
     }
 }

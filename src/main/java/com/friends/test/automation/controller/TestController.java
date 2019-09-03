@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping(value = "/tanistan/test", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+@RequestMapping(value = "/tanistan/test/project/{projectId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 public class TestController {
 
     private final TestCaseService testCaseService;
@@ -38,18 +38,20 @@ public class TestController {
     }
 
     @PostMapping("/user/{userId}")
-    public ResponseEntity<TestCaseResource> createTestCommands(@PathVariable String userId, @RequestBody
+    public ResponseEntity<TestCaseResource> createTestCommands(@PathVariable String projectId,
+            @PathVariable String userId, @RequestBody
             TestCaseDto testCaseDto) {
         TestCase testCase = this.testCaseService
-                .save(userId, conversionService.convert(testCaseDto, TestCase.class));
+                .save(projectId, userId, conversionService.convert(testCaseDto, TestCase.class));
         TestCaseResource testCaseResource = conversionService.convert(testCase, TestCaseResource.class);
         return ResponseEntity.ok(testCaseResource);
     }
 
     @GetMapping("/user/{userId}/all")
-    public ResponseEntity<Page<TestCaseResource>> findAllTestCommandsForUser(@PathVariable String userId,
+    public ResponseEntity<Page<TestCaseResource>> findAllTestCommandsForUser(@PathVariable String projectId,
+            @PathVariable String userId,
             @PageableDefault(sort = "createdDate", direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<TestCase> testModelPage = this.testCaseService.findAllByUserId(userId, pageable);
+        Page<TestCase> testModelPage = this.testCaseService.findAllByUserId(projectId, userId, pageable);
         List<TestCaseResource> testCaseResourceSet = testModelPage.get()
                 .map(testModel -> conversionService.convert(testModel, TestCaseResource.class)).collect(
                         Collectors.toList());
@@ -58,10 +60,11 @@ public class TestController {
 
     @GetMapping("/{testCaseId}/instancerunner/all")
     public ResponseEntity<Page<InstanceRunnerResource>> findAllTestCaseRunnersWithRunners(
+            @PathVariable String projectId,
             @PathVariable String testCaseId,
             @PageableDefault(sort = "createdDate", direction = Sort.Direction.DESC) Pageable pageable) {
         Page<TestCaseInstanceRunner> testModelPage = this.testCaseService
-                .findAllInstanceRunnersByTestCaseId(testCaseId, pageable);
+                .findAllInstanceRunnersByTestCaseId(projectId, testCaseId, pageable);
         List<InstanceRunnerResource> instanceRunnerResources = testModelPage.get()
                 .map(testCaseInstanceRunner -> conversionService
                         .convert(testCaseInstanceRunner, InstanceRunnerResource.class)).collect(
@@ -70,8 +73,9 @@ public class TestController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<TestCaseResource> findTestByTestId(@PathVariable String id) {
-        return ResponseEntity.ok(conversionService.convert(this.testCaseService.findById(id), TestCaseResource.class));
+    public ResponseEntity<TestCaseResource> findTestByTestId(@PathVariable String projectId, @PathVariable String id) {
+        return ResponseEntity
+                .ok(conversionService.convert(this.testCaseService.findById(projectId,id), TestCaseResource.class));
     }
 
 }

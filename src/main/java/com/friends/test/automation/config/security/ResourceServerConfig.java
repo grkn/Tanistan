@@ -48,7 +48,7 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
 
         http.cors().disable().authenticationProvider(customAuthenticationProvider)
                 .requestMatchers().and().authorizeRequests()
-                .antMatchers("/actuator/**", "/api-docs/**", "/oauth/*").permitAll()
+                .antMatchers("/actuator/**", "/api-docs/**", "/oauth/*","/register/**").permitAll()
                 .and().requestMatchers().and().authorizeRequests().antMatchers("/tanistan/**")
                 .fullyAuthenticated().and()
                 .addFilterBefore(customBasicAuthenticationFilter, BasicAuthenticationFilter.class)

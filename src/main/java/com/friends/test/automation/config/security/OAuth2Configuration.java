@@ -51,8 +51,8 @@ public class OAuth2Configuration extends AuthorizationServerConfigurerAdapter {
     @Override
     public void configure(AuthorizationServerSecurityConfigurer oauthServer) throws Exception {
         oauthServer.addTokenEndpointAuthenticationFilter(customBasicAuthenticationFilter);
-        oauthServer.tokenKeyAccess("hasAuthority('ROLE_ADMIN','ROLE_USER')")
-                .checkTokenAccess("hasAuthority('ROLE_ADMIN','ROLE_USER')");
+        oauthServer.tokenKeyAccess("hasAuthority('ROLE_ADMIN','ROLE_USER','ROLE_ROOT')")
+                .checkTokenAccess("hasAuthority('ROLE_ADMIN','ROLE_USER','ROLE_ROOT')");
     }
 
 

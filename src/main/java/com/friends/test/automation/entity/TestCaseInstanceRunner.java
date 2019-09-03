@@ -20,6 +20,10 @@ public class TestCaseInstanceRunner extends TanistanBaseEntity<String> {
     @ManyToOne
     private UserEntity userEntity;
 
+    public TestCaseInstanceRunner() {
+
+    }
+
     public boolean isRunning() {
         return running;
     }

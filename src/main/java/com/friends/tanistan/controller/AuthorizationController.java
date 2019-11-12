@@ -36,6 +36,7 @@ public class AuthorizationController {
         this.userAuthorizationService = userAuthorizationService;
         this.conversionService = conversionService;
     }
+    
 
     @PostMapping
     @PreAuthorize(value = "hasRole('ROLE_ADMIN')")
